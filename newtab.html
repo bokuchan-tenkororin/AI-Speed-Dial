@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Speed Dial</title>
+<link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="prompt-box">
+        <input id="promptInput" type="text" placeholder="Google AIモードで検索（Enterで送信）" autocomplete="off">
+        <button id="sendBtn" title="送信">➤</button>
+      </div>
+      <p class="hint">※入力するとGoogleのAIモードで検索します</p>
+    </header>
+    <main>
+      <div id="grid" class="grid"></div>
+    </main>
+    <footer>
+      <button id="optionsBtn">⚙️ 設定</button>
+    </footer>
+  </div>
+<script src="newtab.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+
+:root { --bg:#0f1115; --card:#1a1d23; --text:#e6e6e6; --accent:#10a37f; --btn-bg:#2a2f37; --btn-hover:#343a44; --border:#333; }
+[data-theme="light"] { --bg:#f5f7fa; --card:#ffffff; --text:#1a1d23; --accent:#10a37f; --btn-bg:#e9ecf1; --btn-hover:#dde1e8; --border:#d0d5dd; }
+[data-theme="dark"] { --bg:#0f1115; --card:#1a1d23; --text:#e6e6e6; --accent:#10a37f; --btn-bg:#2a2f37; --btn-hover:#343a44; --border:#333; }
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] { --bg:#f5f7fa; --card:#ffffff; --text:#1a1d23; --btn-bg:#e9ecf1; --btn-hover:#dde1e8; --border:#d0d5dd; }
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] { --bg:#0f1115; --card:#1a1d23; --text:#e6e6e6; --btn-bg:#2a2f37; --btn-hover:#343a44; --border:#333; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.container{width:min(1100px,95vw)}
+header{margin-bottom:24px;text-align:center}
+.prompt-box{display:flex;gap:8px;background:var(--card);padding:12px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.prompt-box input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:18px;padding:8px}
+.prompt-box button{background:var(--btn-bg);border:none;color:var(--text);padding:0 14px;border-radius:10px;cursor:pointer;font-size:18px}
+.prompt-box button:hover{background:var(--btn-hover)}
+.hint{opacity:.6;font-size:12px;margin-top:8px}
+.grid{display:grid;gap:16px;justify-content:center}
+.tile{background:var(--card);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s,background .2s;user-select:none;min-height:110px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tile:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.tile img{width:48px;height:48px;border-radius:12px;margin-bottom:10px;object-fit:contain;background:#fff}
+.tile span{font-size:13px;opacity:.9;text-align:center;word-break:break-all}
+.tile.dragging{opacity:.4}
+.tile.plus{background:transparent;border:2px dashed var(--border);box-shadow:none}
+.tile.plus:hover{background:var(--card);border-style:solid}
+footer{margin-top:20px;text-align:right}
+#optionsBtn{background:transparent;border:1px solid var(--border);color:var(--text);opacity:.7;padding:6px 12px;border-radius:8px;cursor:pointer}
+#optionsBtn:hover{opacity:1}
