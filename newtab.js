@@ -14,41 +14,132 @@ const DEFAULT_ICONS=[
 ];
 const I18N={
  ja:{options:"\u2699\ufe0f \u8a2d\u5b9a",add:"\u8ffd\u52a0",dlgTitle:"\u30b5\u30a4\u30c8\u3092\u8ffd\u52a0",dlgName:"\u540d\u524d",dlgUrl:"URL",dlgIcon:"\u30a2\u30a4\u30b3\u30f3URL\uff08\u4efb\u610f\uff09",cancel:"\u30ad\u30e3\u30f3\u30bb\u30eb",ok:"\u8ffd\u52a0"},
- en:{options:"\u2699\ufe0f Settings",add:"Add",dlgTitle:"Add Site",dlgName:"Name",dlgUrl:"URL",dlgIcon:"Icon URL (optional)",cancel:"Cancel",ok:"Add"},
- th:{options:"\u2699\ufe0f \u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32",add:"\u0e40\u0e1e\u0e34\u0e48\u0e21",dlgTitle:"\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e27\u0e47\u0e1a\u0e44\u0e0b\u0e15\u0e4c",dlgName:"\u0e0a\u0e37\u0e48\u0e2d",dlgUrl:"URL",dlgIcon:"URL \u0e44\u0e2d\u0e04\u0e2d\u0e19 (\u0e44\u0e21\u0e48\u0e08\u0e33\u0e40\u0e1b\u0e47\u0e19)",cancel:"\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01",ok:"\u0e40\u0e1e\u0e34\u0e48\u0e21"}
+ en:{options:"\u2699\ufe0f Settings",add:"Add",dlgTitle:"Add Site",dlgName:"Name",dlgUrl:"URL",dlgIcon:"Icon URL (optional)",cancel:"Cancel",ok:"Add"}
 };
-const ENGINE_NAMES={google_ai:{ja:"Google AI\u30e2\u30fc\u30c9",en:"Google AI Mode",th:"Google AI Mode"},google:{ja:"Google",en:"Google",th:"Google"},bing:{ja:"Bing",en:"Bing",th:"Bing"},duckduckgo:{ja:"DuckDuckGo",en:"DuckDuckGo",th:"DuckDuckGo"},custom:{ja:"\u30ab\u30b9\u30bf\u30e0",en:"Custom",th:"\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e40\u0e2d\u0e07"}};
+const ENGINE_NAMES={
+  google_ai:{ja:"Google AI\u30e2\u30fc\u30c9",en:"Google AI Mode"},
+  google:{ja:"Google",en:"Google"},
+  bing:{ja:"Bing",en:"Bing"},
+  duckduckgo:{ja:"DuckDuckGo",en:"DuckDuckGo"},
+  custom:{ja:"\u30ab\u30b9\u30bf\u30e0",en:"Custom"}
+};
 const grid=document.getElementById('grid'),promptInput=document.getElementById('promptInput'),sendBtn=document.getElementById('sendBtn');
-let settings={cols:6,rows:2,icons:DEFAULT_ICONS,enableNewTab:true,enableHome:true,theme:'system',lang:'ja',searchEngine:'google_ai',customUrl:''};
-function t(k){return (I18N[settings.lang]||I18N.en)[k]||k}
+let settings={cols:6,rows:2,icons:DEFAULT_ICONS,enableNewTab:true,enableHome:true,theme:'system',searchEngine:'google_ai',customUrl:''};
+
+function getUILang(){
+  try{
+    const raw = (chrome.i18n && chrome.i18n.getUILanguage ? chrome.i18n.getUILanguage() : navigator.language) || 'en';
+    return raw.toLowerCase().startsWith('ja') ? 'ja' : 'en';
+  }catch{
+    const raw = navigator.language || 'en';
+    return raw.toLowerCase().startsWith('ja') ? 'ja' : 'en';
+  }
+}
+function t(k){
+  const lang = getUILang();
+  return (I18N[lang]||I18N.en)[k]||k
+}
+
 async function load(){
- const d=await chrome.storage.sync.get(['cols','rows','icons','enableNewTab','enableHome','theme','lang','searchEngine','customUrl']);
+ const d=await chrome.storage.sync.get(['cols','rows','icons','enableNewTab','enableHome','theme','searchEngine','customUrl']);
  settings.cols=d.cols||6; settings.rows=d.rows||2; settings.enableNewTab=d.enableNewTab!==false; settings.enableHome=d.enableHome!==false;
- settings.theme=d.theme||'system'; settings.lang=d.lang||'ja'; settings.searchEngine=d.searchEngine||'google_ai'; settings.customUrl=d.customUrl||'';
+ settings.theme=d.theme||'system'; settings.searchEngine=d.searchEngine||'google_ai'; settings.customUrl=d.customUrl||'';
  settings.icons=(Array.isArray(d.icons)&&d.icons.length)?d.icons:DEFAULT_ICONS;
  if(!d.icons||!d.icons.length) await chrome.storage.sync.set({icons:settings.icons});
  const need=Math.ceil(settings.icons.length/settings.cols); if(need!==settings.rows){settings.rows=need;await chrome.storage.sync.set({rows:need})}
  const mode=new URLSearchParams(location.search).get('mode');
  if(mode==='newtab'&&!settings.enableNewTab){location.replace('about:blank');return}
  if(mode!=='newtab'&&!settings.enableHome){location.replace('https://www.google.com');return}
- document.documentElement.dataset.theme=settings.theme; document.documentElement.lang=settings.lang;
- const ename=(ENGINE_NAMES[settings.searchEngine]||ENGINE_NAMES.google_ai)[settings.lang]||'Google AI Mode';
- if(settings.lang==='ja'){promptInput.placeholder=`${ename}\u3067\u691c\u7d22 (Enter)`}else if(settings.lang==='th'){promptInput.placeholder=`\u0e04\u0e49\u0e19\u0e2b\u0e32\u0e14\u0e49\u0e27\u0e22 ${ename} (Enter)`}else{promptInput.placeholder=`Search with ${ename} (Enter)`}
+
+ const curLang = getUILang();
+ document.documentElement.dataset.theme=settings.theme; 
+ document.documentElement.lang=curLang;
+ const ename=(ENGINE_NAMES[settings.searchEngine]||ENGINE_NAMES.google_ai)[curLang]||'Google AI Mode';
+ if(curLang==='ja'){
+   promptInput.placeholder=`${ename}\u3067\u691c\u7d22 (Enter)`;
+ }else{
+   promptInput.placeholder=`Search with ${ename} (Enter)`;
+ }
  const hint=document.querySelector('.hint'); if(hint) hint.style.display='none';
  document.getElementById('optionsBtn').textContent=t('options');
  render();
 }
+
 function render(){
- grid.style.gridTemplateColumns=`repeat(${settings.cols},minmax(120px,1fr))`; grid.innerHTML='';
+ grid.style.gridTemplateColumns=`repeat(${settings.cols},minmax(120px,1fr))`; 
+ grid.innerHTML='';
+ let dragFrom = null;
+
  settings.icons.forEach((it,i)=>{
-   const d=document.createElement('div');d.className='tile';d.draggable=true;d.dataset.idx=i;
-   d.innerHTML=`<img src="${it.icon}"><span>${it.name}</span>`; d.onclick=()=>chrome.tabs.update({url:it.url});
-   d.ondragstart=e=>{e.dataTransfer.setData('text/plain',i);d.classList.add('dragging')}; d.ondragend=()=>d.classList.remove('dragging'); d.ondragover=e=>e.preventDefault();
-   d.ondrop=async e=>{e.preventDefault();const f=+e.dataTransfer.getData('text/plain'),to=+d.dataset.idx,a=[...settings.icons];[a[f],a[to]]=[a[to],a[f]];settings.icons=a;await chrome.storage.sync.set({icons:a});render()};
+   const d=document.createElement('div');
+   d.className='tile';
+   d.draggable=true;
+   d.dataset.idx=i;
+   d.innerHTML=`<img src="${it.icon}"><span>${it.name}</span>`;
+   d.onclick=()=>chrome.tabs.update({url:it.url});
+
+   d.ondragstart=e=>{
+     dragFrom = i;
+     e.dataTransfer.setData('text/plain', String(i));
+     e.dataTransfer.effectAllowed='move';
+     requestAnimationFrame(()=>d.classList.add('dragging'));
+   };
+   d.ondragend=()=>{
+     d.classList.remove('dragging');
+     dragFrom = null;
+     document.querySelectorAll('.tile').forEach(t=>t.classList.remove('drag-over'));
+   };
+   d.ondragover=e=>{
+     e.preventDefault();
+     e.dataTransfer.dropEffect='move';
+     if(dragFrom!==null && dragFrom!==i){
+       d.classList.add('drag-over');
+     }
+   };
+   d.ondragleave=()=>{
+     d.classList.remove('drag-over');
+   };
+   d.ondrop=async e=>{
+     e.preventDefault();
+     d.classList.remove('drag-over');
+     const raw = e.dataTransfer.getData('text/plain');
+     const from = parseInt(raw,10);
+     const to = parseInt(d.dataset.idx,10);
+     if(isNaN(from)||isNaN(to)||from===to) return;
+     const a=[...settings.icons];
+     const [moved] = a.splice(from,1);
+     a.splice(to,0,moved);
+     settings.icons=a;
+     const need=Math.ceil(a.length/settings.cols);
+     if(need!==settings.rows) settings.rows=need;
+     await chrome.storage.sync.set({icons:a,rows:settings.rows});
+     render();
+   };
    grid.appendChild(d);
  });
- const p=document.createElement('div');p.className='tile plus';p.innerHTML=`<div style="font-size:36px;opacity:.6;line-height:48px">+</div><span>${t('add')}</span>`;p.onclick=showAdd;grid.appendChild(p);
+
+ grid.ondragover=e=>e.preventDefault();
+ grid.ondrop=async e=>{
+   if(e.target!==grid) return;
+   const raw=e.dataTransfer.getData('text/plain');
+   const from=parseInt(raw,10);
+   if(isNaN(from)) return;
+   const a=[...settings.icons];
+   if(from<0||from>=a.length) return;
+   const [moved]=a.splice(from,1);
+   a.push(moved);
+   settings.icons=a;
+   await chrome.storage.sync.set({icons:a,rows:Math.ceil(a.length/settings.cols)});
+   render();
+ };
+
+ const p=document.createElement('div');
+ p.className='tile plus';
+ p.innerHTML=`<div style="font-size:36px;opacity:.6;line-height:48px">+</div><span>${t('add')}</span>`;
+ p.onclick=showAdd;
+ grid.appendChild(p);
 }
+
 function showAdd(){
  document.getElementById('addDialog')?.remove(); const o=document.createElement('div');o.id='addDialog';
  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999';
