@@ -1,17 +1,44 @@
 {
   "manifest_version": 3,
-  "name": "AI Speed Dial",
-  "version": "1.0.1",
-  "description": "Replace new tab and home with ChatGPT prompt + AI speed dial",
-  "permissions": ["storage","tabs"],
-  "host_permissions": ["https://chatgpt.com/*","https://chat.openai.com/*"],
-  "background": { "service_worker": "background.js" },
-  "content_scripts": [{
-    "matches": ["https://chatgpt.com/*","https://chat.openai.com/*"],
-    "js": ["content-chatgpt.js"],
-    "run_at": "document_idle"
-  }],
+  "name": "__MSG_appName__",
+  "version": "1.0.6",
+  "description": "__MSG_appDesc__",
+  "default_locale": "en",
+  "permissions": [
+    "storage",
+    "tabs",
+    "bookmarks"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": [
+        "content-chatgpt.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "options_page": "options.html",
-  "icons": { "16":"icon16.png","48":"icon48.png","128":"icon128.png" },
-  "action": { "default_title": "AI Speed Dial" }
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "__MSG_appName__"
+  }
 }

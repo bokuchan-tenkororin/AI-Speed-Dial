@@ -1,3 +1,4 @@
+
 const DEFAULT_ICONS=[
  {name:"ChatGPT",url:"https://chatgpt.com/",icon:"https://www.google.com/s2/favicons?domain=chatgpt.com&sz=128"},
  {name:"Copilot",url:"https://copilot.microsoft.com/",icon:"https://copilot.microsoft.com/favicon.ico"},
@@ -12,57 +13,176 @@ const DEFAULT_ICONS=[
  {name:"Qwen",url:"https://chat.qwen.ai/",icon:"https://www.google.com/s2/favicons?domain=chat.qwen.ai&sz=128"},
  {name:"DeepSeek",url:"https://chat.deepseek.com/",icon:"https://www.google.com/s2/favicons?domain=chat.deepseek.com&sz=128"}
 ];
-const I18N={
- ja:{options:"\u2699\ufe0f \u8a2d\u5b9a",add:"\u8ffd\u52a0",dlgTitle:"\u30b5\u30a4\u30c8\u3092\u8ffd\u52a0",dlgName:"\u540d\u524d",dlgUrl:"URL",dlgIcon:"\u30a2\u30a4\u30b3\u30f3URL\uff08\u4efb\u610f\uff09",cancel:"\u30ad\u30e3\u30f3\u30bb\u30eb",ok:"\u8ffd\u52a0"},
- en:{options:"\u2699\ufe0f Settings",add:"Add",dlgTitle:"Add Site",dlgName:"Name",dlgUrl:"URL",dlgIcon:"Icon URL (optional)",cancel:"Cancel",ok:"Add"}
-};
-const ENGINE_NAMES={
-  google_ai:{ja:"Google AI\u30e2\u30fc\u30c9",en:"Google AI Mode"},
-  google:{ja:"Google",en:"Google"},
-  bing:{ja:"Bing",en:"Bing"},
-  duckduckgo:{ja:"DuckDuckGo",en:"DuckDuckGo"},
-  custom:{ja:"\u30ab\u30b9\u30bf\u30e0",en:"Custom"}
-};
-const grid=document.getElementById('grid'),promptInput=document.getElementById('promptInput'),sendBtn=document.getElementById('sendBtn');
-let settings={cols:6,rows:2,icons:DEFAULT_ICONS,enableNewTab:true,enableHome:true,theme:'system',searchEngine:'google_ai',customUrl:''};
 
-function getUILang(){
+const grid=document.getElementById('grid'),promptInput=document.getElementById('promptInput'),sendBtn=document.getElementById('sendBtn');
+let settings={cols:6,rows:2,icons:DEFAULT_ICONS,enableNewTab:true,enableHome:true,theme:'system',searchEngine:'google_ai',customUrl:'', bookmarkFolderId:null};
+
+function i18n(key, ...args){
   try{
-    const raw = (chrome.i18n && chrome.i18n.getUILanguage ? chrome.i18n.getUILanguage() : navigator.language) || 'en';
-    return raw.toLowerCase().startsWith('ja') ? 'ja' : 'en';
-  }catch{
-    const raw = navigator.language || 'en';
-    return raw.toLowerCase().startsWith('ja') ? 'ja' : 'en';
+    if (chrome.i18n && chrome.i18n.getMessage){
+      const m = chrome.i18n.getMessage(key, args.length?args:undefined);
+      if (m) return m;
+    }
+  }catch(e){}
+  const fb={
+    options:'⚙️ Settings', add:'Add', dlgTitle:'Add Site', dlgName:'Name', dlgUrl:'URL', dlgIcon:'Icon URL (optional)', cancel:'Cancel', ok:'Add',
+    searchPlaceholder:'Search with $1 (Enter)', optGAi:'Google AI Mode', optG:'Google', optBing:'Bing', optDDG:'DuckDuckGo', optCustom:'Custom'
+  };
+  let s = fb[key]||key;
+  if(args && args[0]) s = s.replace('$1', args[0]);
+  return s;
+}
+
+function getEngineDisplayName(id){
+  const map={
+    google_ai: i18n('optGAi'),
+    google: i18n('optG'),
+    bing: i18n('optBing'),
+    duckduckgo: i18n('optDDG'),
+    custom: i18n('optCustom')
+  };
+  return map[id]||map.google_ai;
+}
+
+// Bookmark helpers
+function encodeConfig(obj){
+  try{
+    const json = JSON.stringify(obj);
+    const b64 = btoa(unescape(encodeURIComponent(json)));
+    return encodeURIComponent(b64);
+  }catch(e){
+    return encodeURIComponent(JSON.stringify(obj));
   }
 }
-function t(k){
-  const lang = getUILang();
-  return (I18N[lang]||I18N.en)[k]||k
+function decodeConfigFromUrl(url){
+  try{
+    const idx = url.indexOf('#');
+    if (idx===-1) return null;
+    let frag = url.substring(idx+1);
+    frag = decodeURIComponent(frag);
+    try{
+      const jsonStr = decodeURIComponent(escape(atob(frag)));
+      return JSON.parse(jsonStr);
+    }catch{}
+    try{
+      const jsonStr = atob(frag);
+      return JSON.parse(jsonStr);
+    }catch{}
+    try{
+      return JSON.parse(decodeURIComponent(url.substring(idx+1)));
+    }catch{}
+    return null;
+  }catch(e){ return null; }
 }
 
-async function load(){
- const d=await chrome.storage.sync.get(['cols','rows','icons','enableNewTab','enableHome','theme','searchEngine','customUrl']);
- settings.cols=d.cols||6; settings.rows=d.rows||2; settings.enableNewTab=d.enableNewTab!==false; settings.enableHome=d.enableHome!==false;
- settings.theme=d.theme||'system'; settings.searchEngine=d.searchEngine||'google_ai'; settings.customUrl=d.customUrl||'';
- settings.icons=(Array.isArray(d.icons)&&d.icons.length)?d.icons:DEFAULT_ICONS;
- if(!d.icons||!d.icons.length) await chrome.storage.sync.set({icons:settings.icons});
- const need=Math.ceil(settings.icons.length/settings.cols); if(need!==settings.rows){settings.rows=need;await chrome.storage.sync.set({rows:need})}
- const mode=new URLSearchParams(location.search).get('mode');
- if(mode==='newtab'&&!settings.enableNewTab){location.replace('about:blank');return}
- if(mode!=='newtab'&&!settings.enableHome){location.replace('https://www.google.com');return}
+async function findConfigBookmark(folderId){
+  try{
+    const children = await chrome.bookmarks.getChildren(folderId);
+    for(const c of children){
+      if(!c.url) continue;
+      if(c.title.includes('AI_SPEED_DIAL_CONFIG') || c.url.includes('aispeeddial.local') || c.url.includes('aispeeddial.config')){
+        return c;
+      }
+    }
+    for(const c of children){
+      if(!c.url || !c.url.includes('#')) continue;
+      const dec = decodeConfigFromUrl(c.url);
+      if(dec && dec.icons && Array.isArray(dec.icons)) return c;
+    }
+    return null;
+  }catch{ return null; }
+}
 
- const curLang = getUILang();
- document.documentElement.dataset.theme=settings.theme; 
- document.documentElement.lang=curLang;
- const ename=(ENGINE_NAMES[settings.searchEngine]||ENGINE_NAMES.google_ai)[curLang]||'Google AI Mode';
- if(curLang==='ja'){
-   promptInput.placeholder=`${ename}\u3067\u691c\u7d22 (Enter)`;
- }else{
-   promptInput.placeholder=`Search with ${ename} (Enter)`;
- }
- const hint=document.querySelector('.hint'); if(hint) hint.style.display='none';
- document.getElementById('optionsBtn').textContent=t('options');
- render();
+async function loadFromBookmarkFolder(folderId){
+  if(!folderId) return null;
+  try{
+    const cfgBm = await findConfigBookmark(folderId);
+    if(cfgBm){
+      const cfg = decodeConfigFromUrl(cfgBm.url);
+      if(cfg) return cfg;
+    }
+    return null;
+  }catch(e){ console.warn('loadFromBookmarkFolder failed', e); return null; }
+}
+
+async function saveToBookmarkFolder(folderId, fullSettings){
+  // 擬似ブックマークのみ：個別ブックマークは作成しない
+  if(!folderId) return;
+  try{
+    const children = await chrome.bookmarks.getChildren(folderId);
+    for(const c of children){
+      if(c.title.includes('AI_SPEED_DIAL_CONFIG') || (c.url && (c.url.includes('aispeeddial.local') || c.url.includes('aispeeddial.config')))){
+        try{ await chrome.bookmarks.remove(c.id); }catch{}
+      }
+    }
+    const encoded = encodeConfig(fullSettings);
+    const configUrl = `https://aispeeddial.local/config#${encoded}`;
+    const configTitle = i18n('configBookmarkTitle') || '⚙ AI_SPEED_DIAL_CONFIG';
+    await chrome.bookmarks.create({parentId: folderId, title: configTitle, url: configUrl});
+  }catch(e){ console.error('saveToBookmarkFolder error', e); }
+}
+
+
+async function load(){
+  const d = await chrome.storage.sync.get(['cols','rows','icons','enableNewTab','enableHome','theme','searchEngine','customUrl','bookmarkFolderId']);
+  settings.cols=d.cols||6;
+  settings.rows=d.rows||2;
+  settings.enableNewTab=d.enableNewTab!==false;
+  settings.enableHome=d.enableHome!==false;
+  settings.theme=d.theme||'system';
+  settings.searchEngine=d.searchEngine||'google_ai';
+  settings.customUrl=d.customUrl||'';
+  settings.bookmarkFolderId = d.bookmarkFolderId || null;
+  settings.icons=(Array.isArray(d.icons)&&d.icons.length)?d.icons:DEFAULT_ICONS;
+  if(!d.icons||!d.icons.length) await chrome.storage.sync.set({icons:settings.icons});
+
+  if(settings.bookmarkFolderId){
+    try{
+      const bmData = await loadFromBookmarkFolder(settings.bookmarkFolderId);
+      if(bmData){
+        if(bmData.icons && bmData.icons.length) settings.icons = bmData.icons;
+        if(bmData.cols) settings.cols = bmData.cols;
+        if(bmData.rows) settings.rows = bmData.rows;
+        if(bmData.theme) settings.theme = bmData.theme;
+        if(bmData.searchEngine) settings.searchEngine = bmData.searchEngine;
+        if(bmData.customUrl !== undefined) settings.customUrl = bmData.customUrl;
+        if(bmData.enableNewTab!==undefined) settings.enableNewTab = bmData.enableNewTab;
+        if(bmData.enableHome!==undefined) settings.enableHome = bmData.enableHome;
+        // sync back to storage so other parts see it
+        await chrome.storage.sync.set({
+          icons: settings.icons,
+          cols: settings.cols,
+          rows: settings.rows,
+          theme: settings.theme,
+          searchEngine: settings.searchEngine,
+          customUrl: settings.customUrl,
+          enableNewTab: settings.enableNewTab,
+          enableHome: settings.enableHome
+        });
+      }
+    }catch(e){ console.warn('bookmark load failed', e); }
+  }
+
+  const need=Math.ceil(settings.icons.length/settings.cols);
+  if(need!==settings.rows){
+    settings.rows=need;
+    await chrome.storage.sync.set({rows:need});
+  }
+  const mode=new URLSearchParams(location.search).get('mode');
+  if(mode==='newtab'&&!settings.enableNewTab){location.replace('about:blank');return}
+  if(mode!=='newtab'&&!settings.enableHome){location.replace('https://www.google.com');return}
+
+  document.documentElement.dataset.theme=settings.theme;
+  try{
+    const uiLang = chrome.i18n.getUILanguage() || navigator.language || 'en';
+    document.documentElement.lang = uiLang;
+  }catch{ document.documentElement.lang = 'en'; }
+
+  const ename = getEngineDisplayName(settings.searchEngine);
+  promptInput.placeholder = i18n('searchPlaceholder', ename);
+
+  document.getElementById('optionsBtn').textContent = i18n('options');
+  render();
 }
 
 function render(){
@@ -113,6 +233,9 @@ function render(){
      const need=Math.ceil(a.length/settings.cols);
      if(need!==settings.rows) settings.rows=need;
      await chrome.storage.sync.set({icons:a,rows:settings.rows});
+     if(settings.bookmarkFolderId){
+       try{ await saveToBookmarkFolder(settings.bookmarkFolderId, settings); }catch{}
+     }
      render();
    };
    grid.appendChild(d);
@@ -130,30 +253,66 @@ function render(){
    a.push(moved);
    settings.icons=a;
    await chrome.storage.sync.set({icons:a,rows:Math.ceil(a.length/settings.cols)});
+   if(settings.bookmarkFolderId){
+     try{ await saveToBookmarkFolder(settings.bookmarkFolderId, settings); }catch{}
+   }
    render();
  };
 
  const p=document.createElement('div');
  p.className='tile plus';
- p.innerHTML=`<div style="font-size:36px;opacity:.6;line-height:48px">+</div><span>${t('add')}</span>`;
+ p.innerHTML=`<div style="font-size:36px;opacity:.6;line-height:48px">+</div><span>${i18n('add')}</span>`;
  p.onclick=showAdd;
  grid.appendChild(p);
 }
 
 function showAdd(){
- document.getElementById('addDialog')?.remove(); const o=document.createElement('div');o.id='addDialog';
+ document.getElementById('addDialog')?.remove();
+ const o=document.createElement('div');o.id='addDialog';
  o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999';
  o.innerHTML=`<div style="background:var(--card);color:var(--text);padding:20px;border-radius:16px;width:340px">
-  <h3 style="margin:0 0 12px">${t('dlgTitle')}</h3>
-  <label>${t('dlgName')}<br><input id="n" style="width:100%;padding:8px;margin-top:4px"></label><br><br>
-  <label>${t('dlgUrl')}<br><input id="u" placeholder="https://example.com" style="width:100%;padding:8px;margin-top:4px"></label><br><br>
-  <label>${t('dlgIcon')}<br><input id="i" style="width:100%;padding:8px;margin-top:4px"></label><br><br>
-  <div style="text-align:right"><button id="c">${t('cancel')}</button> <button id="o">${t('ok')}</button></div>
+  <h3 style="margin:0 0 12px">${i18n('dlgTitle')}</h3>
+  <label>${i18n('dlgName')}<br><input id="n" style="width:100%;padding:8px;margin-top:4px"></label><br><br>
+  <label>${i18n('dlgUrl')}<br><input id="u" placeholder="https://example.com" style="width:100%;padding:8px;margin-top:4px"></label><br><br>
+  <label>${i18n('dlgIcon')}<br><input id="i" style="width:100%;padding:8px;margin-top:4px"></label><br><br>
+  <div style="text-align:right"><button id="c">${i18n('cancel')}</button> <button id="o">${i18n('ok')}</button></div>
  </div>`; document.body.appendChild(o);
  const n=o.querySelector('#n'),u=o.querySelector('#u'),i=o.querySelector('#i'); n.focus();
  o.querySelector('#c').onclick=()=>o.remove();
- o.querySelector('#o').onclick=async()=>{const name=n.value.trim();let url=u.value.trim();if(!name||!url)return;if(!/^https?:\/\//i.test(url))url='https://'+url;let icon=i.value.trim();if(!icon){try{icon=`https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=128`}catch{}}settings.icons.push({name,url,icon});const need=Math.ceil(settings.icons.length/settings.cols);if(need!==settings.rows)settings.rows=need;await chrome.storage.sync.set({icons:settings.icons,rows:settings.rows});o.remove();render();};
+ o.querySelector('#o').onclick=async()=>{
+   const name=n.value.trim();
+   let url=u.value.trim();
+   if(!name||!url)return;
+   if(!/^https?:\/\//i.test(url))url='https://'+url;
+   let icon=i.value.trim();
+   if(!icon){
+     try{icon=`https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=128`}catch{}
+   }
+   settings.icons.push({name,url,icon});
+   const need=Math.ceil(settings.icons.length/settings.cols);
+   if(need!==settings.rows)settings.rows=need;
+   await chrome.storage.sync.set({icons:settings.icons,rows:settings.rows});
+   if(settings.bookmarkFolderId){
+     try{ await saveToBookmarkFolder(settings.bookmarkFolderId, settings); }catch{}
+   }
+   o.remove();render();
+ };
 }
-async function sendPrompt(){const q=promptInput.value.trim();if(!q)return;let url;switch(settings.searchEngine){case'google':url=`https://www.google.com/search?q=${encodeURIComponent(q)}`;break;case'bing':url=`https://www.bing.com/search?q=${encodeURIComponent(q)}`;break;case'duckduckgo':url=`https://duckduckgo.com/?q=${encodeURIComponent(q)}`;break;case'custom':url=(settings.customUrl||'').replace('%s',encodeURIComponent(q));if(!url)url=`https://www.google.com/search?q=${encodeURIComponent(q)}`;break;default:url=`https://www.google.com/search?q=${encodeURIComponent(q)}&udm=50`;}location.href=url;}
-sendBtn.onclick=sendPrompt; promptInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendPrompt()}});
-document.getElementById('optionsBtn').onclick=()=>chrome.runtime.openOptionsPage(); load();
+
+async function sendPrompt(){
+  const q=promptInput.value.trim();
+  if(!q)return;
+  let url;
+  switch(settings.searchEngine){
+    case'google':url=`https://www.google.com/search?q=${encodeURIComponent(q)}`;break;
+    case'bing':url=`https://www.bing.com/search?q=${encodeURIComponent(q)}`;break;
+    case'duckduckgo':url=`https://duckduckgo.com/?q=${encodeURIComponent(q)}`;break;
+    case'custom':url=(settings.customUrl||'').replace('%s',encodeURIComponent(q));if(!url)url=`https://www.google.com/search?q=${encodeURIComponent(q)}`;break;
+    default:url=`https://www.google.com/search?q=${encodeURIComponent(q)}&udm=50`;
+  }
+  location.href=url;
+}
+sendBtn.onclick=sendPrompt;
+promptInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendPrompt()}});
+document.getElementById('optionsBtn').onclick=()=>chrome.runtime.openOptionsPage();
+load();

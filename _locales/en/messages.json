@@ -1,0 +1,175 @@
+{
+  "appName": {
+    "message": "AI Speed Dial"
+  },
+  "appDesc": {
+    "message": "Replace new tab and home with ChatGPT prompt + AI speed dial"
+  },
+  "options": {
+    "message": "⚙️ Settings"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "dlgTitle": {
+    "message": "Add Site"
+  },
+  "dlgName": {
+    "message": "Name"
+  },
+  "dlgUrl": {
+    "message": "URL"
+  },
+  "dlgIcon": {
+    "message": "Icon URL (optional)"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "ok": {
+    "message": "Add"
+  },
+  "searchPlaceholder": {
+    "message": "Search with $1 (Enter)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "title": {
+    "message": "AI Speed Dial Settings"
+  },
+  "lblTheme": {
+    "message": "Theme:"
+  },
+  "optSystem": {
+    "message": "Follow system"
+  },
+  "optLight": {
+    "message": "Light mode"
+  },
+  "optDark": {
+    "message": "Dark mode"
+  },
+  "lblCols": {
+    "message": "Columns:"
+  },
+  "lblRows": {
+    "message": "Rows:"
+  },
+  "lblNewTab": {
+    "message": "Replace new tab"
+  },
+  "lblHome": {
+    "message": "Replace home button"
+  },
+  "hIcons": {
+    "message": "Edit Icons"
+  },
+  "thOrder": {
+    "message": "#"
+  },
+  "thIcon": {
+    "message": "Icon"
+  },
+  "thName": {
+    "message": "Name"
+  },
+  "thUrl": {
+    "message": "URL"
+  },
+  "thImg": {
+    "message": "Image URL"
+  },
+  "thAct": {
+    "message": "Action"
+  },
+  "del": {
+    "message": "Delete"
+  },
+  "addBtn": {
+    "message": "+ Add"
+  },
+  "reset": {
+    "message": "Reset"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "lblSearch": {
+    "message": "Search Engine:"
+  },
+  "lblCustom": {
+    "message": "Custom URL:"
+  },
+  "customHelp": {
+    "message": "Use %s for query"
+  },
+  "optGAi": {
+    "message": "Google AI Mode"
+  },
+  "optG": {
+    "message": "Google"
+  },
+  "optBing": {
+    "message": "Bing"
+  },
+  "optDDG": {
+    "message": "DuckDuckGo"
+  },
+  "optCustom": {
+    "message": "Custom"
+  },
+  "bookmarkSection": {
+    "message": "Bookmark Storage (Pseudo Bookmark)"
+  },
+  "bookmarkFolder": {
+    "message": "Bookmark folder to save settings:"
+  },
+  "bookmarkFolderHelp": {
+    "message": "All settings including icons are saved as ONE pseudo bookmark (⚙ AI_SPEED_DIAL_CONFIG) in the selected folder. Individual page bookmarks are NOT created, so the folder stays clean. Loaded automatically on startup."
+  },
+  "btnSaveToBookmarks": {
+    "message": "Save to Bookmark Folder"
+  },
+  "btnLoadFromBookmarks": {
+    "message": "Load from Bookmark Folder"
+  },
+  "btnRefreshFolders": {
+    "message": "Refresh"
+  },
+  "noFolder": {
+    "message": "(Not selected - use sync storage)"
+  },
+  "autoSync": {
+    "message": "Auto sync icons with bookmark folder"
+  },
+  "savedToBookmarks": {
+    "message": "Saved as pseudo bookmark!"
+  },
+  "loadedFromBookmarks": {
+    "message": "Loaded from pseudo bookmark!"
+  },
+  "configBookmarkTitle": {
+    "message": "⚙ AI_SPEED_DIAL_CONFIG"
+  },
+  "lblBookmarkFolder": {
+    "message": "Bookmark Folder:"
+  },
+  "statusSaved": {
+    "message": "Saved!"
+  },
+  "moveUp": {
+    "message": "Up"
+  },
+  "moveDown": {
+    "message": "Down"
+  },
+  "autoSaveNote": {
+    "message": "Changes are saved automatically to sync storage and bookmark folder (if selected). Bookmarks are loaded automatically on Chrome startup."
+  },
+  "loading": {
+    "message": "Loading..."
+  }
+}

@@ -58,3 +58,26 @@ main{width:100%;flex:1}
 footer{margin-top:20px;text-align:right;position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 60%,transparent);padding:12px 0 4px;z-index:10}
 #optionsBtn{background:transparent;border:1px solid var(--border);color:var(--text);opacity:.7;padding:6px 12px;border-radius:8px;cursor:pointer}
 #optionsBtn:hover{opacity:1}
+
+
+.tile{position:relative}
+.tile .del-btn{
+  position:absolute;
+  top:6px;
+  right:6px;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(0,0,0,0.55);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  display:none;
+  font-size:14px;
+  line-height:22px;
+  padding:0;
+  text-align:center;
+  z-index:2;
+}
+.tile:hover .del-btn{display:block}
+.tile .del-btn:hover{background:rgba(255,60,60,0.9)}

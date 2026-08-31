@@ -1,0 +1,175 @@
+{
+  "appName": {
+    "message": "AI スピードダイアル"
+  },
+  "appDesc": {
+    "message": "新規タブとホームをChatGPTプロンプトとAIスピードダイアルに置き換え"
+  },
+  "options": {
+    "message": "⚙️ 設定"
+  },
+  "add": {
+    "message": "追加"
+  },
+  "dlgTitle": {
+    "message": "サイトを追加"
+  },
+  "dlgName": {
+    "message": "名前"
+  },
+  "dlgUrl": {
+    "message": "URL"
+  },
+  "dlgIcon": {
+    "message": "アイコンURL（任意）"
+  },
+  "cancel": {
+    "message": "キャンセル"
+  },
+  "ok": {
+    "message": "追加"
+  },
+  "searchPlaceholder": {
+    "message": "$1で検索 (Enter)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "title": {
+    "message": "AI スピードダイアル 設定"
+  },
+  "lblTheme": {
+    "message": "テーマ:"
+  },
+  "optSystem": {
+    "message": "システム設定に合わせる"
+  },
+  "optLight": {
+    "message": "ライトモード"
+  },
+  "optDark": {
+    "message": "ダークモード"
+  },
+  "lblCols": {
+    "message": "横の数:"
+  },
+  "lblRows": {
+    "message": "縦の数:"
+  },
+  "lblNewTab": {
+    "message": "新規タブを置き換える"
+  },
+  "lblHome": {
+    "message": "ホームボタンを置き換える"
+  },
+  "hIcons": {
+    "message": "アイコン編集"
+  },
+  "thOrder": {
+    "message": "順"
+  },
+  "thIcon": {
+    "message": "アイコン"
+  },
+  "thName": {
+    "message": "名前"
+  },
+  "thUrl": {
+    "message": "URL"
+  },
+  "thImg": {
+    "message": "画像URL"
+  },
+  "thAct": {
+    "message": "操作"
+  },
+  "del": {
+    "message": "削除"
+  },
+  "addBtn": {
+    "message": "+ 追加"
+  },
+  "reset": {
+    "message": "初期化"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "lblSearch": {
+    "message": "検索エンジン:"
+  },
+  "lblCustom": {
+    "message": "カスタムURL:"
+  },
+  "customHelp": {
+    "message": "%s を検索語に置き換えます"
+  },
+  "optGAi": {
+    "message": "Google AIモード"
+  },
+  "optG": {
+    "message": "Google"
+  },
+  "optBing": {
+    "message": "Bing"
+  },
+  "optDDG": {
+    "message": "DuckDuckGo"
+  },
+  "optCustom": {
+    "message": "カスタム"
+  },
+  "bookmarkSection": {
+    "message": "ブックマーク保存（擬似ブックマーク）"
+  },
+  "bookmarkFolder": {
+    "message": "設定を保存するブックマークフォルダ:"
+  },
+  "bookmarkFolderHelp": {
+    "message": "登録済みウェブページを含む全設定を、選択したフォルダに1つの擬似ブックマーク（⚙ AI_SPEED_DIAL_CONFIG）として保存します。個別のウェブページブックマークは作成しないためフォルダが汚れません。Chrome起動時に自動読込されます。"
+  },
+  "btnSaveToBookmarks": {
+    "message": "ブックマークに保存"
+  },
+  "btnLoadFromBookmarks": {
+    "message": "ブックマークから読込"
+  },
+  "btnRefreshFolders": {
+    "message": "更新"
+  },
+  "noFolder": {
+    "message": "（未選択 - 同期ストレージを使用）"
+  },
+  "autoSync": {
+    "message": "ブックマークフォルダと自動同期"
+  },
+  "savedToBookmarks": {
+    "message": "擬似ブックマークとして保存しました！"
+  },
+  "loadedFromBookmarks": {
+    "message": "擬似ブックマークから読み込みました！"
+  },
+  "configBookmarkTitle": {
+    "message": "⚙ AI_SPEED_DIAL_CONFIG"
+  },
+  "lblBookmarkFolder": {
+    "message": "ブックマークフォルダ:"
+  },
+  "statusSaved": {
+    "message": "保存しました！"
+  },
+  "moveUp": {
+    "message": "上へ"
+  },
+  "moveDown": {
+    "message": "下へ"
+  },
+  "autoSaveNote": {
+    "message": "変更は自動的に同期ストレージとブックマークフォルダ（選択時）に保存されます。Chrome起動時にブックマークから自動的に読み込まれます。"
+  },
+  "loading": {
+    "message": "読み込み中..."
+  }
+}

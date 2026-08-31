@@ -6,46 +6,69 @@
 [data-theme="dark"] { --bg:#0f1115; --card:#1a1d23; --text:#eee; --border:#333; --input-bg:#1a1d23 }
 @media (prefers-color-scheme: light) { :root[data-theme="system"] { --bg:#f5f7fa; --card:#fff; --text:#1a1d23; --border:#d0d5dd; --input-bg:#fff } }
 @media (prefers-color-scheme: dark) { :root[data-theme="system"] { --bg:#0f1115; --card:#1a1d23; --text:#eee; --border:#333; --input-bg:#1a1d23 } }
-body{font-family:system-ui;background:var(--bg);color:var(--text);padding:24px;transition:.2s}
+body{font-family:system-ui;background:var(--bg);color:var(--text);padding:24px;transition:.2s;max-width:900px;margin:auto}
 input,button,select{padding:6px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:6px}
 table{border-collapse:collapse;width:100%;margin-top:12px;background:var(--card)}
 td,th{border:1px solid var(--border);padding:6px}
 img{width:24px;height:24px;vertical-align:middle;background:#fff;border-radius:4px}
 .card{background:var(--card);padding:16px;border-radius:12px;margin:16px 0;border:1px solid var(--border)}
+.status{margin-left:8px;font-size:13px;color:#4caf50}
+.flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.auto-save-note{font-size:12px;opacity:.6;margin-top:8px}
 </style>
 </head><body>
-<h1 id="title">AI Speed Dial Settings</h1>
+<h1 id="title"></h1>
+
 <div class="card">
- <label><span id="lblTheme">Theme:</span> 
+ <label><span id="lblTheme"></span> 
   <select id="theme">
-    <option value="system" id="optSystem">Follow system</option>
-    <option value="light" id="optLight">Light</option>
-    <option value="dark" id="optDark">Dark</option>
+    <option value="system" id="optSystem"></option>
+    <option value="light" id="optLight"></option>
+    <option value="dark" id="optDark"></option>
   </select>
  </label>
 </div>
+
 <div class="card">
- <label><span id="lblSearch">Search Engine:</span>
+ <label><span id="lblSearch"></span>
   <select id="searchEngine">
-    <option value="google_ai" id="optGAi">Google AI Mode</option>
-    <option value="google" id="optG">Google</option>
-    <option value="bing" id="optBing">Bing</option>
-    <option value="duckduckgo" id="optDDG">DuckDuckGo</option>
-    <option value="custom" id="optCustom">Custom</option>
+    <option value="google_ai" id="optGAi"></option>
+    <option value="google" id="optG"></option>
+    <option value="bing" id="optBing"></option>
+    <option value="duckduckgo" id="optDDG"></option>
+    <option value="custom" id="optCustom"></option>
   </select>
  </label>
  <div id="customBox" style="margin-top:8px;display:none">
-  <label><span id="lblCustom">Custom URL:</span> <input id="customUrl" type="text" placeholder="https://example.com/search?q=%s" style="width:320px"></label>
-  <p id="customHelp" style="font-size:12px;opacity:.7;margin:4px 0 0">Use %s for query</p>
+  <label><span id="lblCustom"></span> <input id="customUrl" type="text" placeholder="https://example.com/search?q=%s" style="width:320px"></label>
+  <p id="customHelp" style="font-size:12px;opacity:.7;margin:4px 0 0"></p>
  </div>
 </div>
+
 <div class="card">
- <label><span id="lblCols">Columns:</span> <input id="cols" type="number" min="1" max="12" value="6"></label>
- <label><span id="lblRows">Rows:</span> <input id="rows" type="number" min="1" max="6" value="2"></label>
- <p><label><input type="checkbox" id="enableNewTab" checked> <span id="lblNewTab">Replace new tab</span></label> <label><input type="checkbox" id="enableHome" checked> <span id="lblHome">Replace home button</span></label></p>
+ <label><span id="lblCols"></span> <input id="cols" type="number" min="1" max="12" value="6"></label>
+ <label><span id="lblRows"></span> <input id="rows" type="number" min="1" max="6" value="2"></label>
+ <p><label><input type="checkbox" id="enableNewTab" checked> <span id="lblNewTab"></span></label> <label><input type="checkbox" id="enableHome" checked> <span id="lblHome"></span></label></p>
 </div>
-<h2 id="hIcons">Edit Icons</h2>
-<table id="tbl"><thead><tr><th id="thOrder">#</th><th id="thIcon">Icon</th><th id="thName">Name</th><th id="thUrl">URL</th><th id="thImg">Image URL</th><th id="thAct">Action</th></tr></thead><tbody></tbody></table>
-<button id="add">+ Add</button> <button id="reset">Reset</button> <button id="save">Save</button>
+
+<div class="card">
+  <h3 id="bookmarkSectionTitle" style="margin-top:0"></h3>
+  <p id="bookmarkFolderHelp" style="font-size:13px;opacity:.8"></p>
+  <div class="flex">
+    <label><span id="lblBookmarkFolder"></span></label>
+    <select id="bookmarkFolder" style="min-width:260px"></select>
+    <button id="refreshFolders"></button>
+    <span id="bookmarkStatus" class="status"></span>
+  </div>
+  <p class="auto-save-note" id="autoSaveNote"></p>
+</div>
+
+<h2 id="hIcons"></h2>
+<table id="tbl"><thead><tr><th id="thOrder"></th><th id="thIcon"></th><th id="thName"></th><th id="thUrl"></th><th id="thImg"></th><th id="thAct"></th></tr></thead><tbody></tbody></table>
+<div style="margin-top:12px" class="flex">
+  <button id="add"></button> <button id="reset"></button>
+  <span id="status" class="status"></span>
+</div>
+
 <script src="options.js"></script>
 </body></html>
